@@ -1,3 +1,28 @@
-# 이더리움 기반 토큰 / ICO 컨트랙트 자동 생성 플랫폼
+# my-project
 
-해당 프로젝트는 보다 편리하게 토큰과 ICO 컨트랙트 배포하기 위한 플랫폼 입니다.
+> A Vue.js project
+
+## Build Setup
+
+``` bash
+# install dependencies
+yarn
+
+# serve with hot reload at localhost:8080
+yarn dev
+
+# build for production with minification
+yarn build
+
+# build for production and view the bundle analyzer report
+yarn build --report
+
+# run unit tests
+yarn unit
+
+# run e2e tests
+yarn e2e
+
+# run all tests
+yarn test
+```
