@@ -13,10 +13,41 @@
         </v-btn>
       </v-toolbar-items>
       <v-spacer />
-      <v-select v-bind:items="networks" v-model="network" />
+      <h2>NetworkStatus: {{ isNetworkConnected }}</h2>
     </v-toolbar>
 
     <v-content class="app">
+      <div class="text-xs-center">
+        <v-dialog
+          v-model="dialog"
+          width="500"
+        >
+          <v-card>
+            <v-card-title
+              class="headline red lighten-2"
+              primary-title
+            >
+              Error!!
+            </v-card-title>
+
+            <v-card-text>
+              You need to connecting metamask!
+              Metamask 실행 후 다시접속하세요
+            </v-card-text>
+            <v-divider/>
+            <v-card-actions>
+              <v-spacer/>
+              <v-btn
+                color="primary"
+                flat
+                @click="networkCheck()"
+              >
+                I Confirm
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
       <router-view/>
     </v-content>
 
@@ -52,19 +83,38 @@
 </template>
 
 <script>
+import Web3 from 'web3'
+
 export default {
   name: 'App',
-  created: () => {
-
-  },
   data () {
     return {
       drawer: false,
-      networks: [
-        'https://mainnet.infura.io',
-        'https://ropsten.infura.i'
-      ],
-      network: ''
+      dialog: false,
+      isNetworkConnected: 'on',
+      web3: ''
+    }
+  },
+  mounted () {
+    if (typeof window.web3 === 'undefined') {
+      this.dialog = true
+      this.isNetworkConnected = 'off'
+    } else {
+      this.dialog = false
+      this.isNetworkConnected = 'on'
+      this.web3 = new Web3(window.web3.currentProvider)
+    }
+  },
+  methods: {
+    networkCheck () {
+      if (typeof window.web3 === 'undefined') {
+        this.dialog = true
+        this.isNetworkConnected = 'off'
+      } else {
+        this.dialog = false
+        this.isNetworkConnected = 'on'
+        this.web3 = new Web3(window.web3.currentProvider)
+      }
     }
   }
 }
