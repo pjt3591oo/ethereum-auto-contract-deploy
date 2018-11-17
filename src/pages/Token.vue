@@ -27,6 +27,7 @@
         required
       />
       <v-btn @click="deploy()">deploy</v-btn>
+      <v-btn @click="page()">page</v-btn>
     </div>
 
     <v-layout row wrap>
@@ -60,14 +61,16 @@
 </template>
 
 <script>
+import Web3 from 'web3'
+
 export default {
   name: 'HomePage',
   data () {
     return {
-      decimal: 1,
-      tokenName: '1',
-      symbol: '2',
-      totalSupply: 123,
+      decimal: 18,
+      tokenName: 'ParkJeongTae',
+      symbol: 'pjt',
+      totalSupply: 10000000,
       tokenCode: '',
       abi: '',
       byteCode: ''
@@ -104,9 +107,32 @@ export default {
 
       console.log(this.byteCode)
       console.log(this.abi)
+
+      let web3 = new Web3(window.web3.currentProvider)
+      console.log(`address ${web3.eth.accounts[0]}`)
+
+      let Contract = web3.eth.contract(JSON.parse(this.abi))
+      console.log(Contract)
+
+      Contract.new(this.totalSupply, {
+        data: `0x${this.byteCode}`,
+        arguments: [this.totalSupply],
+        from: web3.eth.accounts[0]
+      }, (err, ca) => {
+        if (ca.address) {
+          console.log('============= contract deploy info =============')
+          console.log(err)
+          console.log(ca)
+          console.log(`https://ropsten.etherscan.io/token/${ca.address}`)
+          window.open(`https://ropsten.etherscan.io/token/${ca.address}`, '_blank')
+        }
+      })
+    },
+    page () {
+      window.open('https://ropsten.etherscan.io/token/0x2bc48a9cd3ced66450a74c0cc03bacaabc98d5ad', '_blank')
     },
     makeCode () {
-      this.tokenCode = `pragma solidity ^0.4.24; contract ERC20TokenComplete {string public constant name ="${this.tokenName}";string public constant symbol = "${parseInt(this.symbol)}";uint8 public constant decimals = ${parseInt(this.decimal)};uint256 public totalSupply = ${this.totalSupply};mapping(address => uint256) public balanceOf;event Transfer(address indexed from, address indexed to, uint256 value);event Burn(address indexed from, uint256 value);address owner;modifier onlyOwner() {require(msg.sender == owner);_;}constructor (uint256 _totalSupply) public {owner = msg.sender;totalSupply = _totalSupply * 10 ** uint256(${parseInt(this.decimal)});balanceOf[msg.sender] = totalSupply;emit Transfer(address(this), msg.sender, totalSupply);assert(true);}function transfer(address to, uint amount) public returns(bool) {require(balanceOf[msg.sender] >= amount);balanceOf[msg.sender] -= amount;balanceOf[to] += amount;emit Transfer(msg.sender, to, amount);}function burn(uint amount) onlyOwner public {require(totalSupply >= amount);balanceOf[msg.sender] -= amount;totalSupply -= amount;emit Burn(msg.sender, amount);}function addPublish(uint amount) onlyOwner public{totalSupply += amount * 10 ** uint(${parseInt(this.decimal)});balanceOf[msg.sender] += amount * 10 ** uint(${parseInt(this.decimal)});}}`
+      this.tokenCode = `pragma solidity ^0.4.24; contract ERC20TokenComplete {string public constant name ="${this.tokenName}";string public constant symbol = "${this.symbol}";uint8 public constant decimals = ${parseInt(this.decimal)};uint256 public totalSupply ;mapping(address => uint256) public balanceOf;event Transfer(address indexed from, address indexed to, uint256 value);event Burn(address indexed from, uint256 value);address owner;modifier onlyOwner() {require(msg.sender == owner);_;}constructor (uint256 _totalSupply) public {owner = msg.sender;totalSupply = _totalSupply * 10 ** uint256(${parseInt(this.decimal)});balanceOf[msg.sender] = totalSupply;emit Transfer(address(this), msg.sender, totalSupply);assert(true);}function transfer(address to, uint amount) public returns(bool) {require(balanceOf[msg.sender] >= amount);balanceOf[msg.sender] -= amount;balanceOf[to] += amount;emit Transfer(msg.sender, to, amount);}function burn(uint amount) onlyOwner public {require(totalSupply >= amount);balanceOf[msg.sender] -= amount;totalSupply -= amount;emit Burn(msg.sender, amount);}function addPublish(uint amount) onlyOwner public{totalSupply += amount * 10 ** uint(${parseInt(this.decimal)});balanceOf[msg.sender] += amount * 10 ** uint(${parseInt(this.decimal)});}}`
     }
   }
 }
