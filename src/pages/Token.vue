@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="content" @click="c()">
 
     <div class="deploy-info">
       <v-text-field
@@ -27,7 +27,7 @@
         required
       />
       <v-btn @click="deploy()">deploy</v-btn>
-      <v-btn @click="page()">page</v-btn>
+      <v-btn @click="test()">test</v-btn>
     </div>
 
     <v-layout row wrap>
@@ -57,6 +57,39 @@
       </v-flex>
     </v-layout>
 
+    <v-content class="app">
+      <div class="text-xs-center">
+        <v-dialog
+          v-model="contractDialogNoti"
+          width="500"
+        >
+          <v-card>
+            <v-card-title
+              class="headline red lighten-2"
+              primary-title
+            >
+              {{ dialogStatus }}
+            </v-card-title>
+
+            <v-card-text>
+              {{ dialogMsg }}
+            </v-card-text>
+            <v-divider/>
+            <v-card-actions>
+              <v-spacer/>
+              <v-btn
+                color="primary"
+                flat
+                @click="networkCheck()"
+              >
+                I Confirm
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+      <router-view/>
+    </v-content>
   </div>
 </template>
 
@@ -67,13 +100,16 @@ export default {
   name: 'HomePage',
   data () {
     return {
+      contractDialogNoti: false,
+      dialogMsg: '',
       decimal: 18,
       tokenName: 'ParkJeongTae',
       symbol: 'pjt',
       totalSupply: 10000000,
       tokenCode: '',
       abi: '',
-      byteCode: ''
+      byteCode: '',
+      dialogStatus: ''
     }
   },
   created () {
@@ -102,13 +138,21 @@ export default {
       this.abi = abi
     },
     async deploy () {
+      let web3 = new Web3(window.web3.currentProvider)
+
+      if (!web3.eth.accounts.length) {
+        this.contractDialogNoti = true
+        this.dialogMsg = 'metamask 로그인이 되어있지 않습니다.'
+        this.dialogStatus = 'Warring'
+        return 0
+      }
+
       this.makeCode()
       await this.compile()
 
       console.log(this.byteCode)
       console.log(this.abi)
 
-      let web3 = new Web3(window.web3.currentProvider)
       console.log(`address ${web3.eth.accounts[0]}`)
 
       let Contract = web3.eth.contract(JSON.parse(this.abi))
@@ -124,26 +168,39 @@ export default {
           console.log(err)
           console.log(ca)
           console.log(`https://ropsten.etherscan.io/token/${ca.address}`)
+          this.contractDialogNoti = true
+          this.dialogMsg = `Token 발행이 완료되었습니다.\n Token Address는 ${ca.address} 입니다.`
+          this.dialogStatus = 'Success'
           window.open(`https://ropsten.etherscan.io/token/${ca.address}`, '_blank')
         }
       })
     },
-    page () {
-      window.open('https://ropsten.etherscan.io/token/0x2bc48a9cd3ced66450a74c0cc03bacaabc98d5ad', '_blank')
+    test () {
+      let web3 = new Web3(window.web3.currentProvider)
+      console.log(web3.eth.accounts)
+      console.log(this.contractDialogNoti)
+      // window.open('https://ropsten.etherscan.io/token/0x2bc48a9cd3ced66450a74c0cc03bacaabc98d5ad', '_blank')
     },
     makeCode () {
       this.tokenCode = `pragma solidity ^0.4.24; contract ERC20TokenComplete {string public constant name ="${this.tokenName}";string public constant symbol = "${this.symbol}";uint8 public constant decimals = ${parseInt(this.decimal)};uint256 public totalSupply ;mapping(address => uint256) public balanceOf;event Transfer(address indexed from, address indexed to, uint256 value);event Burn(address indexed from, uint256 value);address owner;modifier onlyOwner() {require(msg.sender == owner);_;}constructor (uint256 _totalSupply) public {owner = msg.sender;totalSupply = _totalSupply * 10 ** uint256(${parseInt(this.decimal)});balanceOf[msg.sender] = totalSupply;emit Transfer(address(this), msg.sender, totalSupply);assert(true);}function transfer(address to, uint amount) public returns(bool) {require(balanceOf[msg.sender] >= amount);balanceOf[msg.sender] -= amount;balanceOf[to] += amount;emit Transfer(msg.sender, to, amount);}function burn(uint amount) onlyOwner public {require(totalSupply >= amount);balanceOf[msg.sender] -= amount;totalSupply -= amount;emit Burn(msg.sender, amount);}function addPublish(uint amount) onlyOwner public{totalSupply += amount * 10 ** uint(${parseInt(this.decimal)});balanceOf[msg.sender] += amount * 10 ** uint(${parseInt(this.decimal)});}}`
+    },
+    c () {
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.app {
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+  display: block;
+  margin: 50px;
+}
 h1 {
   font-weight: normal;
-
   color: $c-primary;
-
 }
 .content {
   max-width: 600px;
