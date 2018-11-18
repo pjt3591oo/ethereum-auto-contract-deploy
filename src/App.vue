@@ -14,8 +14,8 @@
       </v-toolbar-items>
       <v-spacer />
       <div>
-        <h2>NetworkStatus: <v-icon :color="isNetworkConnected">check_circle_outline</v-icon> </h2>
-        <h2>LoginStatus: <v-icon :color="islogined">check_circle_outline</v-icon> </h2>
+        <h4>Network: <v-icon :color="isNetworkConnected">check_circle_outline</v-icon> </h4>
+        <h4>Login: <v-icon :color="islogined">check_circle_outline</v-icon> </h4>
       </div>
     </v-toolbar>
 

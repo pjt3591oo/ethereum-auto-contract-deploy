@@ -5,22 +5,46 @@
         v-model="decimal"
         label="decimal"
         required
-      />
+      >
+        <v-tooltip slot="append" bottom>
+          <v-icon slot="activator" color="#b3d4fc">help</v-icon>
+          <span>최대 소수점 허용자릿수 (ethereum의 경우 decimal=18)</span>
+        </v-tooltip>
+      </v-text-field>
+        
       <v-text-field
         v-model="tokenName"
         label="tokenName"
         required
-      />
+      >
+        <v-tooltip slot="append" bottom>
+          <v-icon slot="activator" color="#b3d4fc">help</v-icon>
+          <span>배포하는 토큰이름</span>
+        </v-tooltip>
+      </v-text-field>
+
       <v-text-field
         v-model="symbol"
         label="symbol"
         required
-      />
+      >
+        <v-tooltip slot="append" bottom>
+          <v-icon slot="activator" color="#b3d4fc">help</v-icon>
+          <span>토큰 상징이름 (예, 비트코인: BTC, 이더리움: ETH)</span>
+        </v-tooltip>
+      </v-text-field>
+
       <v-text-field
         v-model="totalSupply"
         label="totalSupply"
         required
-      />
+      >
+        <v-tooltip slot="append" bottom>
+          <v-icon slot="activator" color="#b3d4fc">help</v-icon>
+          <span>토큰전체 발행량</span>
+        </v-tooltip>
+      </v-text-field>
+
       <v-btn @click="deploy()">deploy</v-btn>
       <v-btn @click="test()">test</v-btn>
     </div>
@@ -132,7 +156,7 @@ export default {
       totalSupply: 10000000,
       tokenCode: '',
       abi: '',
-      byteCode: '',
+      byteCode: ' ',
       dialogStatus: '',
       dialogClass: ''
     }
@@ -179,6 +203,7 @@ export default {
       try {
         source = this.browsersolc.compile(this.tokenCode.replace(/\n/g, '').replace(/\t/g, ''), 1)
       } catch (err) {
+        console.log(`Token Compile 중 문제발생 \n ${err}`)
         this.contractDialogNoti = true
         this.dialogMsg = `Token Compile 중 문제발생 \n ${err}`
         this.dialogStatus = 'Waring'
@@ -189,6 +214,13 @@ export default {
       this.abi = JSON.parse(abi)
     },
     async deploy () {
+      let paramMsg = this.isParamsBlack()
+      if (paramMsg) {
+        this.contractDialogNoti = true
+        this.dialogMsg = `${paramMsg}`
+        this.dialogStatus = 'Waring'
+        return 0
+      }
       let web3 = new Web3(window.web3.currentProvider)
 
       console.log(web3.eth.accounts)
@@ -203,15 +235,20 @@ export default {
       this.makeCode()
       await this.compile()
 
-      let Contract = web3.eth.contract(this.abi)
+      const Contract = web3.eth.contract(this.abi)
+
+      const pasPrice = 21
+      const GWei = 9
 
       Contract.new(this.totalSupply, {
         data: `0x${this.byteCode}`,
         arguments: [this.totalSupply],
         from: web3.eth.accounts[0],
-        gasPrice: 21 * (10 ** 9)
+        gasPrice: pasPrice * (10 ** GWei)
       }, (err, ca) => {
+        console.log(ca)
         if (err) {
+          console.log(`Token 발행중 문제발생 \n ${err}`)
           this.contractDialogNoti = true
           this.dialogMsg = `Token 발행중 문제발생 \n ${err}`
           this.dialogStatus = 'Waring'
@@ -229,6 +266,23 @@ export default {
       // let web3 = new Web3(window.web3.currentProvider)
       // window.open('https://ropsten.etherscan.io/token/0x2bc48a9cd3ced66450a74c0cc03bacaabc98d5ad', '_blank')
     },
+    isParamsBlack () {
+      let msg = ''
+      if (!this.decimal) {
+        msg = 'decimal이 비었습니다'
+      }
+      if (!this.tokenName) {
+        msg = 'tokenName이 비었습니다'
+      }
+      if (!this.symbol) {
+        msg = 'symbol이 비었습니다'
+      }
+      if (!this.totalSupply) {
+        msg = 'totalSupply이 비었습니다'
+      }
+
+      return msg
+    },
     codeCopy () {
       this.$copyText(this.tokenCode)
       this.contractDialogNoti = true
@@ -236,7 +290,7 @@ export default {
       this.dialogStatus = 'Success'
     },
     abiCopy () {
-      this.$copyText(this.abi)
+      this.$copyText(JSON.stringify(this.abi))
       this.contractDialogNoti = true
       this.dialogMsg = `Application Binary Interface 복사가 완료되었습니다.`
       this.dialogStatus = 'Success'
