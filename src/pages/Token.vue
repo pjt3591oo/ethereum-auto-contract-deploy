@@ -1,5 +1,5 @@
 <template>
-  <div class="content" @click="c()">
+  <div class="content">
 
     <div class="deploy-info">
       <v-text-field
@@ -129,6 +129,7 @@ export default {
   data () {
     return {
       contractDialogNoti: false,
+      browsersolc: '',
       dialogMsg: '',
       decimal: 18,
       tokenName: 'ParkJeongTae',
@@ -152,25 +153,39 @@ export default {
       this.makeOnlineCode()
     }
   },
-  created () {
+  mounted () {
     this.makeOnlineCode()
+    window.BrowserSolc.loadVersion('soljson-v0.4.24+commit.e67f0147.js', (compiler) => {
+      this.browsersolc = compiler
+      this.contractDialogNoti = true
+      this.dialogMsg = 'solidity compiler 로드완료'
+      this.dialogStatus = 'Success'
+    })
   },
   methods: {
     async compile () {
-      let bs = () => {
-        return new Promise((resolve, reject) => {
-          window.BrowserSolc.loadVersion('soljson-v0.4.24+commit.e67f0147.js', (compiler) => {
-            resolve(compiler)
-          })
+      if (!this.browsersolc) {
+        this.contractDialogNoti = true
+        this.dialogMsg = '아직 solidity compiler가 로드되지 않았습니다. 로드될때까지 잠시만 기다려 주세요.'
+        this.dialogStatus = 'Warring'
+
+        window.BrowserSolc.loadVersion('soljson-v0.4.24+commit.e67f0147.js', (compiler) => {
+          this.browsersolc = compiler
+          this.contractDialogNoti = true
+          this.dialogMsg = 'solidity compiler 로드완료'
+          this.dialogStatus = 'Success'
         })
+        return
       }
-      if (!this.solc) {
-        this.solc = await bs()
-      }
+
       let source = ''
+
       try {
-        source = this.solc.compile(this.tokenCode.replace(/\n/g, '').replace(/\t/g, ''), 1)
+        source = this.browsersolc.compile(this.tokenCode.replace(/\n/g, '').replace(/\t/g, ''), 1)
       } catch (err) {
+        this.contractDialogNoti = true
+        this.dialogMsg = `Token Compile 중 문제발생 \n ${err}`
+        this.dialogStatus = 'Warring'
       }
       let bytecode = source.contracts[':ERC20Token'].bytecode
       let abi = source.contracts[':ERC20Token'].interface
@@ -214,7 +229,7 @@ export default {
       })
     },
     test () {
-      this.$copyText('ttttt')
+      console.log(this.browsersolc)
       // let web3 = new Web3(window.web3.currentProvider)
       // window.open('https://ropsten.etherscan.io/token/0x2bc48a9cd3ced66450a74c0cc03bacaabc98d5ad', '_blank')
     },
