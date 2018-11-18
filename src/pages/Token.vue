@@ -75,7 +75,7 @@
         >
           <v-card>
             <v-card-title
-              v-show="dialogStatus === 'Warring'"
+              v-show="dialogStatus === 'Waring'"
               primary-title
               class="headline red lighten-2"
             >
@@ -163,7 +163,7 @@ export default {
       if (!this.browsersolc) {
         this.contractDialogNoti = true
         this.dialogMsg = '아직 solidity compiler가 로드되지 않았습니다. 로드될때까지 잠시만 기다려 주세요.'
-        this.dialogStatus = 'Warring'
+        this.dialogStatus = 'Waring'
 
         window.BrowserSolc.loadVersion('soljson-v0.4.24+commit.e67f0147.js', (compiler) => {
           this.browsersolc = compiler
@@ -181,7 +181,7 @@ export default {
       } catch (err) {
         this.contractDialogNoti = true
         this.dialogMsg = `Token Compile 중 문제발생 \n ${err}`
-        this.dialogStatus = 'Warring'
+        this.dialogStatus = 'Waring'
       }
       let bytecode = source.contracts[':ERC20Token'].bytecode
       let abi = source.contracts[':ERC20Token'].interface
@@ -196,7 +196,7 @@ export default {
       if (!web3.eth.accounts.length) {
         this.contractDialogNoti = true
         this.dialogMsg = 'metamask 로그인이 되어있지 않습니다.\n 만약 로그인이 되어있다면 다시 접속해주세요.'
-        this.dialogStatus = 'Warring'
+        this.dialogStatus = 'Waring'
         return 0
       }
 
@@ -214,7 +214,7 @@ export default {
         if (err) {
           this.contractDialogNoti = true
           this.dialogMsg = `Token 발행중 문제발생 \n ${err}`
-          this.dialogStatus = 'Warring'
+          this.dialogStatus = 'Waring'
         }
         if (ca.address) {
           this.contractDialogNoti = true

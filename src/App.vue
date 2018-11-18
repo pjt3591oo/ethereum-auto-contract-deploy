@@ -30,7 +30,7 @@
               class="headline red lighten-2"
               primary-title
             >
-              Error!!
+              Waring!!
             </v-card-title>
 
             <v-card-text>
