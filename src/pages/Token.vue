@@ -30,29 +30,44 @@
       <v-btn @click="test()">test</v-btn>
     </div>
 
+    <hr>
+
     <v-layout row wrap>
+      <div class="code-title">
+        <h2>token code</h2>
+        <h2 class="copy" @click="codeCopy()">(복사)</h2>
+      </div>
       <v-flex xs12>
         <v-textarea
           v-model="tokenCode"
           outline
+          rows="45"
           name="input-7-4"
-          label="tokenCode"
+          disabled="'true'"
         />
       </v-flex>
-      <v-flex xs12>
-        <v-textarea
-          v-model="abi"
-          outline
-          name="input-7-4"
-          label="Application Binary Interface"
+
+      <div class="code-title">
+        <h2>Application Binary Interface</h2>
+        <h2 class="copy" @click="abiCopy()">(복사)</h2>
+      </div>
+      <v-flex xs12 class="abi-section">
+        <vue-json-pretty
+          :data="abi"
+          :show-length="'true'"
+          class="abi"
         />
       </v-flex>
+      <div class="code-title">
+        <h2>Byte Code</h2>
+        <h2 class="copy" @click="bytecodeCopy()">(복사)</h2>
+      </div>
       <v-flex xs12>
         <v-textarea
           v-model="byteCode"
           outline
           name="input-7-4"
-          label="byteCode"
+          disabled="'true'"
         />
       </v-flex>
     </v-layout>
@@ -65,8 +80,16 @@
         >
           <v-card>
             <v-card-title
-              class="headline red lighten-2"
+              v-show="dialogStatus === 'Warring'"
               primary-title
+              class="headline red lighten-2"
+            >
+              {{ dialogStatus }}
+            </v-card-title>
+            <v-card-title
+              v-show="dialogStatus === 'Success'"
+              primary-title
+              class="headline green lighten-2"
             >
               {{ dialogStatus }}
             </v-card-title>
@@ -80,7 +103,7 @@
               <v-btn
                 color="primary"
                 flat
-                @click="networkCheck()"
+                @click="test()"
               >
                 I Confirm
               </v-btn>
@@ -95,9 +118,14 @@
 
 <script>
 import Web3 from 'web3'
+import VueJsonPretty from 'vue-json-pretty'
+import TokenCode from '../utils/contracts/token'
 
 export default {
   name: 'HomePage',
+  components: {
+    VueJsonPretty
+  },
   data () {
     return {
       contractDialogNoti: false,
@@ -109,10 +137,23 @@ export default {
       tokenCode: '',
       abi: '',
       byteCode: '',
-      dialogStatus: ''
+      dialogStatus: '',
+      dialogClass: ''
+    }
+  },
+  watch: {
+    decimal: function (d) {
+      this.makeOnlineCode()
+    },
+    tokenName: function (n) {
+      this.makeOnlineCode()
+    },
+    symbol: function (s) {
+      this.makeOnlineCode()
     }
   },
   created () {
+    this.makeOnlineCode()
   },
   methods: {
     async compile () {
@@ -128,17 +169,18 @@ export default {
       }
       let source = ''
       try {
-        source = this.solc.compile(this.tokenCode, 1)
+        source = this.solc.compile(this.tokenCode.replace(/\n/g, '').replace(/\t/g, ''), 1)
       } catch (err) {
-        console.log(err)
       }
-      let bytecode = source.contracts[':ERC20TokenComplete'].bytecode
-      let abi = source.contracts[':ERC20TokenComplete'].interface
+      let bytecode = source.contracts[':ERC20Token'].bytecode
+      let abi = source.contracts[':ERC20Token'].interface
       this.byteCode = bytecode
-      this.abi = abi
+      this.abi = JSON.parse(abi)
     },
     async deploy () {
       let web3 = new Web3(window.web3.currentProvider)
+
+      console.log(web3.eth.accounts)
 
       if (!web3.eth.accounts.length) {
         this.contractDialogNoti = true
@@ -147,27 +189,23 @@ export default {
         return 0
       }
 
-      this.makeCode()
+      this.makeOnlineCode()
       await this.compile()
 
-      console.log(this.byteCode)
-      console.log(this.abi)
-
-      console.log(`address ${web3.eth.accounts[0]}`)
-
-      let Contract = web3.eth.contract(JSON.parse(this.abi))
-      console.log(Contract)
+      let Contract = web3.eth.contract(this.abi)
 
       Contract.new(this.totalSupply, {
         data: `0x${this.byteCode}`,
         arguments: [this.totalSupply],
-        from: web3.eth.accounts[0]
+        from: web3.eth.accounts[0],
+        gasPrice: 21 * (10 ** 9)
       }, (err, ca) => {
+        if (err) {
+          this.contractDialogNoti = true
+          this.dialogMsg = `Token 발행중 문제발생 \n ${err}`
+          this.dialogStatus = 'Warring'
+        }
         if (ca.address) {
-          console.log('============= contract deploy info =============')
-          console.log(err)
-          console.log(ca)
-          console.log(`https://ropsten.etherscan.io/token/${ca.address}`)
           this.contractDialogNoti = true
           this.dialogMsg = `Token 발행이 완료되었습니다.\n Token Address는 ${ca.address} 입니다.`
           this.dialogStatus = 'Success'
@@ -176,15 +214,30 @@ export default {
       })
     },
     test () {
-      let web3 = new Web3(window.web3.currentProvider)
-      console.log(web3.eth.accounts)
-      console.log(this.contractDialogNoti)
+      this.$copyText('ttttt')
+      // let web3 = new Web3(window.web3.currentProvider)
       // window.open('https://ropsten.etherscan.io/token/0x2bc48a9cd3ced66450a74c0cc03bacaabc98d5ad', '_blank')
     },
-    makeCode () {
-      this.tokenCode = `pragma solidity ^0.4.24; contract ERC20TokenComplete {string public constant name ="${this.tokenName}";string public constant symbol = "${this.symbol}";uint8 public constant decimals = ${parseInt(this.decimal)};uint256 public totalSupply ;mapping(address => uint256) public balanceOf;event Transfer(address indexed from, address indexed to, uint256 value);event Burn(address indexed from, uint256 value);address owner;modifier onlyOwner() {require(msg.sender == owner);_;}constructor (uint256 _totalSupply) public {owner = msg.sender;totalSupply = _totalSupply * 10 ** uint256(${parseInt(this.decimal)});balanceOf[msg.sender] = totalSupply;emit Transfer(address(this), msg.sender, totalSupply);assert(true);}function transfer(address to, uint amount) public returns(bool) {require(balanceOf[msg.sender] >= amount);balanceOf[msg.sender] -= amount;balanceOf[to] += amount;emit Transfer(msg.sender, to, amount);}function burn(uint amount) onlyOwner public {require(totalSupply >= amount);balanceOf[msg.sender] -= amount;totalSupply -= amount;emit Burn(msg.sender, amount);}function addPublish(uint amount) onlyOwner public{totalSupply += amount * 10 ** uint(${parseInt(this.decimal)});balanceOf[msg.sender] += amount * 10 ** uint(${parseInt(this.decimal)});}}`
+    codeCopy () {
+      this.$copyText(this.tokenCode)
+      this.contractDialogNoti = true
+      this.dialogMsg = `token code 복사가 완료되었습니다.`
+      this.dialogStatus = 'Success'
     },
-    c () {
+    abiCopy () {
+      this.$copyText(this.abi)
+      this.contractDialogNoti = true
+      this.dialogMsg = `Application Binary Interface 복사가 완료되었습니다.`
+      this.dialogStatus = 'Success'
+    },
+    bytecodeCopy () {
+      this.$copyText(this.byteCode)
+      this.contractDialogNoti = true
+      this.dialogMsg = `bytecode 복사가 완료되었습니다.`
+      this.dialogStatus = 'Success'
+    },
+    makeOnlineCode () {
+      this.tokenCode = TokenCode({ decimal: this.decimal, tokenName: this.tokenName, symbol: this.symbol })
     }
   }
 }
@@ -202,6 +255,25 @@ h1 {
   font-weight: normal;
   color: $c-primary;
 }
+h2 {
+  color: rgb(0, 255, 64);
+  font-weight: bold;
+}
+.code-title {
+  text-align: left;
+  width: 100%;
+}
+.code-title h2{
+  width: auto;
+  display: inline-block;
+}
+.code-title h2.copy {
+  cursor: pointer;
+}
+hr {
+  opacity: 0;
+  margin: 20px 0 20px 0;
+}
 .content {
   max-width: 600px;
 
@@ -210,9 +282,14 @@ h1 {
 .deploy-info {
   width: 100%;
 }
+.abi-section{
+  background-color: #1c1c1c;
+  border: 2px solid hsla(0,0%,100%,.7);
+  margin-bottom: 20px;
+}
 .abi {
   background-color: #fff;
-  margin-top: 50px;
   width: 100%;
+  text-align: left;
 }
 </style>

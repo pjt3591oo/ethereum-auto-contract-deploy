@@ -4,10 +4,11 @@ import router from './router'
 import store from './store'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
-import VueHighlightJS from 'vue-highlightjs'
+import VueClipboard from 'vue-clipboard2'
 
+VueClipboard.config.autoSetContainer = true // add this line
+Vue.use(VueClipboard)
 Vue.use(Vuetify)
-Vue.use(VueHighlightJS)
 
 Vue.config.productionTip = false
 
