@@ -2,19 +2,16 @@
   <div class="content">
     <v-text-field
       v-model="beneficiary"
-      :rules="nameRules"
       label="beneficiary"
       required
     />
     <v-text-field
       v-model="tokenAddress"
-      :rules="nameRules"
       label="tokenAddress"
       required
     />
     <v-text-field
       v-model="owner"
-      :rules="nameRules"
       label="owner"
       required
     />

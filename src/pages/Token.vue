@@ -1,28 +1,23 @@
 <template>
   <div class="content">
-
     <div class="deploy-info">
       <v-text-field
         v-model="decimal"
-        :rules="nameRules"
         label="decimal"
         required
       />
       <v-text-field
         v-model="tokenName"
-        :rules="nameRules"
         label="tokenName"
         required
       />
       <v-text-field
         v-model="symbol"
-        :rules="nameRules"
         label="symbol"
         required
       />
       <v-text-field
         v-model="totalSupply"
-        :rules="nameRules"
         label="totalSupply"
         required
       />
@@ -40,10 +35,10 @@
       <v-flex xs12>
         <v-textarea
           v-model="tokenCode"
+          :disabled="true"
           outline
           rows="45"
           name="input-7-4"
-          disabled="'true'"
         />
       </v-flex>
 
@@ -54,7 +49,7 @@
       <v-flex xs12 class="abi-section">
         <vue-json-pretty
           :data="abi"
-          :show-length="'true'"
+          :show-length="true"
           class="abi"
         />
       </v-flex>
@@ -65,9 +60,9 @@
       <v-flex xs12>
         <v-textarea
           v-model="byteCode"
+          :disabled="true"
           outline
           name="input-7-4"
-          disabled="'true'"
         />
       </v-flex>
     </v-layout>
@@ -144,17 +139,18 @@ export default {
   },
   watch: {
     decimal: function (d) {
-      this.makeOnlineCode()
+      this.makeCode()
     },
     tokenName: function (n) {
-      this.makeOnlineCode()
+      this.makeCode()
     },
     symbol: function (s) {
-      this.makeOnlineCode()
+      this.makeCode()
     }
   },
   created () {
-    this.makeOnlineCode()
+    this.makeCode()
+    console.log(window.BrowserSolc)
     window.BrowserSolc.loadVersion('soljson-v0.4.24+commit.e67f0147.js', (compiler) => {
       this.browsersolc = compiler
       this.contractDialogNoti = true
@@ -199,12 +195,12 @@ export default {
 
       if (!web3.eth.accounts.length) {
         this.contractDialogNoti = true
-        this.dialogMsg = 'metamask 로그인이 되어있지 않습니다.'
+        this.dialogMsg = 'metamask 로그인이 되어있지 않습니다.\n 만약 로그인이 되어있다면 다시 접속해주세요.'
         this.dialogStatus = 'Warring'
         return 0
       }
 
-      this.makeOnlineCode()
+      this.makeCode()
       await this.compile()
 
       let Contract = web3.eth.contract(this.abi)
@@ -251,7 +247,7 @@ export default {
       this.dialogMsg = `bytecode 복사가 완료되었습니다.`
       this.dialogStatus = 'Success'
     },
-    makeOnlineCode () {
+    makeCode () {
       this.tokenCode = TokenCode({ decimal: this.decimal, tokenName: this.tokenName, symbol: this.symbol })
     }
   }

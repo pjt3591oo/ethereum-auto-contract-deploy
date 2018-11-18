@@ -3,8 +3,8 @@ import App from './App'
 import router from './router'
 import store from './store'
 import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
 import VueClipboard from 'vue-clipboard2'
+import 'vuetify/dist/vuetify.min.css'
 
 VueClipboard.config.autoSetContainer = true // add this line
 Vue.use(VueClipboard)
