@@ -14,8 +14,8 @@
       </v-toolbar-items>
       <v-spacer />
       <div>
-        <h2>NetworkStatus: {{ isNetworkConnected }}</h2>
-        <h2>LoginStatus: {{ islogined }}</h2>
+        <h2>NetworkStatus: <v-icon :color="isNetworkConnected">check_circle_outline</v-icon> </h2>
+        <h2>LoginStatus: <v-icon :color="islogined">check_circle_outline</v-icon> </h2>
       </div>
     </v-toolbar>
 
@@ -93,8 +93,8 @@ export default {
       drawer: false,
       dialog: false,
       dialogMsg: '',
-      isNetworkConnected: 'on',
-      islogined: 'on',
+      isNetworkConnected: 'red',
+      islogined: 'red',
       web3: ''
     }
   },
@@ -105,11 +105,11 @@ export default {
     networkCheck () {
       if (typeof window.web3 === 'undefined') {
         this.dialog = true
-        this.isNetworkConnected = 'off'
+        this.isNetworkConnected = 'red'
         this.dialogMsg = 'You need to connecting metamask! Metamask 설치 후 다시접속하세요.'
       } else {
         this.dialog = false
-        this.isNetworkConnected = 'on'
+        this.isNetworkConnected = 'green'
         this.web3 = new Web3(window.web3.currentProvider)
         this.loginCheck()
       }
@@ -117,11 +117,11 @@ export default {
     loginCheck () {
       if (!this.web3.eth.accounts.length) {
         this.dialog = true
-        this.islogined = 'off'
+        this.islogined = 'red'
         this.dialogMsg = 'You need to login metamask! Metamask 로그인 후 다시접속하세요.'
       } else {
         this.dialog = false
-        this.islogined = 'on'
+        this.islogined = 'green'
       }
     }
   }
