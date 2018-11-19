@@ -84,8 +84,6 @@
 </template>
 
 <script>
-import Web3 from 'web3'
-
 export default {
   name: 'App',
   data () {
@@ -94,12 +92,14 @@ export default {
       dialog: false,
       dialogMsg: '',
       isNetworkConnected: 'red',
-      islogined: 'red',
-      web3: ''
+      islogined: 'red'
     }
   },
   created () {
-    this.networkCheck()
+    const self = this
+    setTimeout(function () {
+      self.networkCheck()
+    }, 300)
   },
   methods: {
     networkCheck () {
@@ -110,12 +110,11 @@ export default {
       } else {
         this.dialog = false
         this.isNetworkConnected = 'green'
-        this.web3 = new Web3(window.web3.currentProvider)
         this.loginCheck()
       }
     },
     loginCheck () {
-      if (!this.web3.eth.accounts.length) {
+      if (!window.web3.eth.accounts.length) {
         this.dialog = true
         this.islogined = 'red'
         this.dialogMsg = 'You need to login metamask! Metamask 로그인 후 다시접속하세요.'

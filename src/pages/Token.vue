@@ -11,7 +11,6 @@
           <span>최대 소수점 허용자릿수 (ethereum의 경우 decimal=18)</span>
         </v-tooltip>
       </v-text-field>
-        
       <v-text-field
         v-model="tokenName"
         label="tokenName"
@@ -201,7 +200,7 @@ export default {
       let source = ''
 
       try {
-        source = this.browsersolc.compile(this.tokenCode.replace(/\n/g, '').replace(/\t/g, ''), 1)
+        source = this.browsersolc.compile(this.tokenCode.replace(/\n/g, '').replace(/\t/g, ''))
       } catch (err) {
         console.log(`Token Compile 중 문제발생 \n ${err}`)
         this.contractDialogNoti = true
