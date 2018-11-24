@@ -5,10 +5,10 @@
         <router-link to="/">AutoDeploy</router-link>
       </v-toolbar-title>
       <v-toolbar-items clipped-left>
-        <v-btn dark>
+        <v-btn flat>
           <router-link to="/deploy">deploy</router-link>
         </v-btn>
-        <v-btn dark>
+        <v-btn flat>
           <router-link to="/tokeninfo">info</router-link>
         </v-btn>
       </v-toolbar-items>
