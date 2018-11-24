@@ -140,7 +140,7 @@ import VueJsonPretty from 'vue-json-pretty'
 import TokenCode from '../utils/contracts/token'
 
 export default {
-  name: 'HomePage',
+  name: 'Deploy',
   components: {
     VueJsonPretty
   },
@@ -320,7 +320,7 @@ h1 {
   color: $c-primary;
 }
 h2 {
-  color: rgb(0, 255, 64);
+  color: rgb(125, 125, 125);
   font-weight: bold;
 }
 .code-title {
@@ -340,7 +340,6 @@ hr {
 }
 .content {
   max-width: 600px;
-
   margin: auto;
 }
 .deploy-info {

@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/pages/Home'
-import Token from '@/pages/Token'
-import Ico from '@/pages/Ico'
+import Deploy from '@/pages/Deploy'
+import Tokeninfo from '@/pages/Tokeninfo'
 
 Vue.use(Router)
 
@@ -14,14 +14,14 @@ export default new Router({
       component: Home
     },
     {
-      path: '/token',
-      name: 'Token',
-      component: Token
+      path: '/deploy',
+      name: 'Deploy',
+      component: Deploy
     },
     {
-      path: '/ico',
-      name: 'Ico',
-      component: Ico
+      path: '/tokeninfo',
+      name: 'Tokeninfo',
+      component: Tokeninfo
     }
   ]
 })

@@ -6,10 +6,10 @@
       </v-toolbar-title>
       <v-toolbar-items clipped-left>
         <v-btn dark>
-          <router-link to="/token">tokenDeploy</router-link>
+          <router-link to="/deploy">deploy</router-link>
         </v-btn>
         <v-btn dark>
-          <router-link to="/ico">icoDeploy</router-link>
+          <router-link to="/tokeninfo">info</router-link>
         </v-btn>
       </v-toolbar-items>
       <v-spacer />
@@ -80,6 +80,12 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
+
+    <v-footer class="pa-3">
+      <div>logined account: <b>{{ login }} </b></div>
+      <v-spacer />
+      <div>&copy; {{ new Date().getFullYear() }}</div>
+    </v-footer>
   </v-app>
 </template>
 
@@ -92,7 +98,8 @@ export default {
       dialog: false,
       dialogMsg: '',
       isNetworkConnected: 'red',
-      islogined: 'red'
+      islogined: 'red',
+      login: ''
     }
   },
   created () {
@@ -121,6 +128,7 @@ export default {
       } else {
         this.dialog = false
         this.islogined = 'green'
+        this.login = window.web3.eth.accounts[0]
       }
     }
   }

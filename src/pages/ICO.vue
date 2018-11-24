@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: 'HomePage',
+  name: 'Ico',
   data () {
     return {
       beneficiary: '',
