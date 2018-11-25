@@ -1,6 +1,6 @@
-# my-project
+# TMS
 
-> A Vue.js project
+> Token Management Systen
 
 ## Build Setup
 
@@ -25,4 +25,15 @@ yarn e2e
 
 # run all tests
 yarn test
+```
+
+## start
+
+```bash
+# server start
+$ node ./app.js
+
+# background start
+$ forever start app.js  
+$ pm2 start app.js
 ```
