@@ -9,7 +9,7 @@ export default {
   name: 'HomePage',
   data () {
     return {
-      msg: 'Token / ICO deploy'
+      msg: 'Token Management System'
     }
   }
 }

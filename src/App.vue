@@ -2,7 +2,7 @@
   <v-app dark>
     <v-toolbar class="hsla">
       <v-toolbar-title>
-        <router-link to="/">AutoDeploy</router-link>
+        <router-link to="/">TMS</router-link>
       </v-toolbar-title>
       <v-toolbar-items clipped-left>
         <v-btn flat>

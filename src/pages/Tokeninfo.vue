@@ -95,7 +95,41 @@
         </v-tooltip>
       </v-text-field>
       <v-btn @click="transfer()">transfer</v-btn>
+      <v-btn @click="test()">test</v-btn>
     </div>
+    <v-content class="app">
+      <div class="text-xs-center">
+        <v-dialog
+          v-model="contractDialogNoti"
+          width="500"
+        >
+          <v-card>
+            <v-card-title
+              primary-title
+              class="headline red"
+            >
+              {{ dialogStatus }}
+            </v-card-title>
+
+            <v-card-text>
+              {{ dialogMsg }}
+            </v-card-text>
+            <v-divider/>
+            <v-card-actions>
+              <v-spacer/>
+              <v-btn
+                color="primary"
+                flat
+                @click="confirm()"
+              >
+                I Confirm
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+      <!-- <router-view/> -->
+    </v-content>
   </div>
 </template>
 
@@ -115,11 +149,20 @@ export default {
       totalSupply: '',
       abi: tokenAbi(),
       transferValue: 0, // 토큰 전송량
-      transferTo: '0x' // 토큰 받는 계정주소
+      transferTo: '0x', // 토큰 받는 계정주소
+      dialogStatus: '',
+      dialogMsg: '',
+      contractDialogNoti: false
     }
   },
   methods: {
     getInfo () {
+      if (this.tokenContractAddress.length !== 42) {
+        this.dialogStatus = 'Error'
+        this.contractDialogNoti = true
+        this.dialogMsg = '토큰 컨트랙트 주소 확인필요'
+        return 0
+      }
       let web3 = new Web3(window.web3.currentProvider)
       web3.eth.defaultAccount = web3.eth.accounts[0]
 
@@ -144,14 +187,18 @@ export default {
         self.symbol = symbol
       })
     },
-    async transfer () {
+    transfer () {
       console.log(this.transferTo.length)
       if (this.transferTo.length !== 42) {
-        alert('토큰 받는 계정정보 확인필요')
+        this.dialogStatus = 'Error'
+        this.contractDialogNoti = true
+        this.dialogMsg = '토큰 받는 계정정보 확인필요'
         return 0
       }
       if (!this.transferValue) {
-        alert('토큰전송량 확인필요')
+        this.dialogStatus = 'Error'
+        this.contractDialogNoti = true
+        this.dialogMsg = '토큰전송량 확인필요'
         return 0
       }
       let web3 = new Web3(window.web3.currentProvider)
@@ -170,6 +217,15 @@ export default {
           console.log(err)
           console.log(data)
         })
+      })
+    },
+    confirm () {
+      this.contractDialogNoti = false
+    },
+    test () {
+      let web3 = new Web3(window.web3.currentProvider)
+      web3.eth.getCode(this.tokenContractAddress, function (_, data) {
+        console.log(data)
       })
     }
   }

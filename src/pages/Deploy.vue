@@ -121,7 +121,7 @@
               <v-btn
                 color="primary"
                 flat
-                @click="test()"
+                @click="confirm()"
               >
                 I Confirm
               </v-btn>
@@ -129,7 +129,7 @@
           </v-card>
         </v-dialog>
       </div>
-      <router-view/>
+      <!-- <router-view/> -->
     </v-content>
   </div>
 </template>
@@ -302,6 +302,9 @@ export default {
     },
     makeCode () {
       this.tokenCode = TokenCode({ decimal: this.decimal, tokenName: this.tokenName, symbol: this.symbol })
+    },
+    confirm () {
+      this.contractDialogNoti = false
     }
   }
 }
